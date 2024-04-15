@@ -1,22 +1,16 @@
-import requests
-from django.shortcuts import render
-from django.http import HttpResponse
-from bs4 import BeautifulSoup
-import pandas as pd
-import time
+import os
+from django.http import HttpResponse, JsonResponse
+from web_scrapper.helpers import send_request
+from .core.extract_info import top_chart_extraction
 
 def weekly_top(request):
-
-    url = "https://www.imdb.com/chart/top"
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-    }
-    response = requests.get(url,headers=headers)
-    
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    top_movies = []
-    for row in soup.select('tbody.lister-list tr'):
-        movie_name = row.find("td",class_='ipc-poster-card__title ipc-poster-card__title--clamp-2 ipc-poster-card__title--clickable').find('a').get_text()
-
-    return HttpResponse("Test Successful")
+    try:
+        url = os.getenv('IMDB_CHART_TOP')
+        response = send_request.request_web_page(url)
+        if response is not None:
+            top_movies_list = top_chart_extraction(response=response)
+            return JsonResponse(top_movies_list,safe=False)
+        else:
+            return HttpResponse("Failed to fetch top movies list", status=500)
+    except Exception as e:
+        print(f"Exception occured: {e}")

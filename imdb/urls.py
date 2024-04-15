@@ -3,5 +3,5 @@ from django.urls import path, include
 from .views import weekly_top
 
 urlpatterns = [
-    path('weekly_top/', weekly_top),
+    path('top_movies/', weekly_top),
 ]
